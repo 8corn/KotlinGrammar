@@ -146,18 +146,18 @@ fun main() {
     // (입력 타입) -> 반환 타입 = {변수이름: 입력타입 -> 구몬}
     // 아래 두개의 k, l처럼 타입 생략 가능
     var k: (String) -> Unit = {s -> println(s) }
-    var l = {s: String -> println(s) }
-    var m = {s: String -> s}                    // s를 반환함
-    var n = {                                   // 인자가 없는 경우
+    var k2 = {s: String -> println(s) }
+    var k3 = {s: String -> s}                    // s를 반환함
+    var k4 = {                                   // 인자가 없는 경우
         println("xyzcs")
     }
-    var o : (String) -> Unit = { println(it) }  // 인자가 하나일 경우 it 카워드 사용
+    var k5 : (String) -> Unit = { println(it) }  // 인자가 하나일 경우 it 카워드 사용
 
     k("zxc")
-    l("sss")
-    println(m("ccc"))
-    n()
-    o("qqq")
+    k2("sss")
+    println(k3("ccc"))
+    k4()
+    k5("qqq")
 
 /**
  * apply
@@ -167,29 +167,68 @@ fun main() {
  * run -> apply와 똑같은 기능이지만 마지막 구문에 있는 값을 반환해주는 차이가 있음
  *
  * with -> run이랑 같지만 사용법만 다름 -> p.run --> with(p)
+ *
+ * let (=run) / also (=apply)
+ * 기능은 위와 같지만 also, let의 공통된 차이점은 it 키워드를 사용해 객체 변수를 참조함
+ * -> 같은 이름 변수로 혼동이 올 수 있기 때문에
+ * ex) println(price) -> println(it.price)
  */
 
-    var p = Book("a", 20000)
-    p.apply {
+    var l = Book("a", 20000)
+    l.apply {
         name = "apply $name"
         dc()
     }
-    p.printName()
+    l.printName()
 
-    var q = p.run {
+    var l2 = l.run {
         name = "apply $name"
         dc()
         "zxc"           // 마지막 구문 반환
     }
-    println(q)
+    println(l2)
 
-    var r = with(p) {
+    var l3 = with(l) {
         name = "apply $name"
         dc()
         "asd"
     }
-    println(r)
+    println(l3)
+
+    println("11-----------")
+
+    Counter.countUp()
+    println(Counter.count)
+    Counter.clear()
+    println(Counter.count)
+
+    var noodles = Food()
+    var pasta = Food()
+    noodles.up()
+    pasta.up()
+    println("${Food.total}")
+
+    EventPrinter().start()
+
+    // 다형성 as -> as는 클래스를 casting하는 역할
+
+    var m = Drink()
+    m.drink()
+
+    var m2: Drink = Cola()
+    m2.drink()
+
+    if (m2 is Cola) {           // if문안에서 일시적 캐스팅
+        m2.washD()
+    }
+
+    // Cola로 캐스팅 된 m3 동시에 m2도 캐스팅이 된다.
+    var m3 = m2 as Cola
+    m3.washD()
+    m2.washD()
 }
+
+
 
 
 // ---------- 함수 ---------------
@@ -331,7 +370,7 @@ fun lamda2(funs: (String) -> String) {          // 가져온 함수에 인자를
     println(funs("람다함수"))
 }
 
-// apply -> 163번째 줄
+// apply
 
 class Book(var name: String, var price: Int) {
     fun dc() {
@@ -340,5 +379,87 @@ class Book(var name: String, var price: Int) {
 
     fun printName() {
         println("$name, $price")
+    }
+}
+
+// object -> 객체가 하나만 필요해서 사용하는 경우에 쓰는 키워드 -> 싱글톤 디자인패턴
+
+object Counter {
+    var count = 0
+    fun countUp() {
+        count++
+    }
+    fun clear() {
+        count = 0
+    }
+}
+
+// companion object -> class 안에도 object를 만들 수 있는데, 기존 JAVA에서 static이랑 비슷함
+
+class Food() {
+    companion object {
+        var total = 0
+    }
+
+    fun up() {
+        total++
+    }
+}
+
+/**
+ * 옵저버(Observer) 패턴
+ * listener, callback이라고 부음
+ * 어떠한 이벤트가 발생을 감시해 이벤트 발생시 기능이 호출되도록 하는 패턴
+ */
+
+interface EventListener {
+    fun onEvent(count: Int)
+}
+class Counter2(var listener: EventListener) {
+    fun count() {
+        for (i in 0..20) {
+            if (i % 5 == 0) {
+                listener.onEvent(i)
+            }
+        }
+    }
+}
+class EventPrinter: EventListener {
+    override fun onEvent(count: Int) {
+        println(count)
+    }
+    fun start() {
+        var count = Counter2(this)
+        count.count()
+    }
+}
+
+/**
+ * EventPrinter클래스 -> 리스너를 익명클래스로 정의하는 방법
+ * class EventPrinter {
+ *      fun start() {
+ *          Counter(object: EventListener {
+ *              override fun onEvent(count: Int) {
+ *                  println(count)
+ *              }
+ *          }).count()
+ *      }
+ * }
+ */
+
+
+open class Drink {
+    var name = "음료"
+    open fun drink() {
+        println("${name}을 마십니다.")
+    }
+}
+class Cola: Drink() {
+    var type = "콜라"
+    override fun drink() {
+        println("${type}을 마십니다.")
+    }
+    fun washD() {
+        println("${type}을 설거지 합니다.")
     }
 }
