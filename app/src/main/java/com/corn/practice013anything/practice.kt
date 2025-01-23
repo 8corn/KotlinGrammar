@@ -158,6 +158,37 @@ fun main() {
     println(m("ccc"))
     n()
     o("qqq")
+
+/**
+ * apply
+ * 인스턴스의 값을 람다함수를 사용해 변경할 수 있는 함수 그리고 변경된 객체를 반환
+ * -> 코드가 깔끔해짐
+ *
+ * run -> apply와 똑같은 기능이지만 마지막 구문에 있는 값을 반환해주는 차이가 있음
+ *
+ * with -> run이랑 같지만 사용법만 다름 -> p.run --> with(p)
+ */
+
+    var p = Book("a", 20000)
+    p.apply {
+        name = "apply $name"
+        dc()
+    }
+    p.printName()
+
+    var q = p.run {
+        name = "apply $name"
+        dc()
+        "zxc"           // 마지막 구문 반환
+    }
+    println(q)
+
+    var r = with(p) {
+        name = "apply $name"
+        dc()
+        "asd"
+    }
+    println(r)
 }
 
 
@@ -298,4 +329,16 @@ fun lamda(str: String): String {
 // 이름: (입력받을 타입) -> (리턴타입) 즉, a라는 함수와 같으면 된다.
 fun lamda2(funs: (String) -> String) {          // 가져온 함수에 인자를 넣어 실행
     println(funs("람다함수"))
+}
+
+// apply -> 163번째 줄
+
+class Book(var name: String, var price: Int) {
+    fun dc() {
+        price -= 2000
+    }
+
+    fun printName() {
+        println("$name, $price")
+    }
 }
