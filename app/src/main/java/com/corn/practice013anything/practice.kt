@@ -137,6 +137,27 @@ fun main() {
     var j = Cat(4)
     j.eat()
     j.run()
+
+    println("10-----------")
+
+    lamda2(::lamda)  // 함수를 넘겨줄 때 ::을 붙인다. -> lamda를 lamda2로 넘겨줌
+
+    // 람다 함수로 작성된 k
+    // (입력 타입) -> 반환 타입 = {변수이름: 입력타입 -> 구몬}
+    // 아래 두개의 k, l처럼 타입 생략 가능
+    var k: (String) -> Unit = {s -> println(s) }
+    var l = {s: String -> println(s) }
+    var m = {s: String -> s}                    // s를 반환함
+    var n = {                                   // 인자가 없는 경우
+        println("xyzcs")
+    }
+    var o : (String) -> Unit = { println(it) }  // 인자가 하나일 경우 it 카워드 사용
+
+    k("zxc")
+    l("sss")
+    println(m("ccc"))
+    n()
+    o("qqq")
 }
 
 
@@ -265,5 +286,16 @@ class Cat(var a: Int): Runner, Eater {
 
 /**
  * 고차함수(람다함수)
- * 함수를 클래스
+ * 함수를 클래스에서 만들어낸 인스턴스처럼 취급하는 방법
+ * -> 함수를 파라미터로 넘겨줄 수 있음
+ * -> 결과값으로도 반환 받을 수 있음
  */
+
+fun lamda(str: String): String {
+    return str
+}
+
+// 이름: (입력받을 타입) -> (리턴타입) 즉, a라는 함수와 같으면 된다.
+fun lamda2(funs: (String) -> String) {          // 가져온 함수에 인자를 넣어 실행
+    println(funs("람다함수"))
+}
